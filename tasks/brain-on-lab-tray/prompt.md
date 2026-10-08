@@ -1,0 +1,1 @@
+a realistic looking live brain on a lab tray, deep wrinkly folds all over both halves with a clear groove down the middle, the little cauliflower looking part tucked under the back, a stem coming down, glossy wet pink with thin red vessel lines across the surface

@@ -1,0 +1,1 @@
+a bathroom towel rack with three bars, a big towel folded neatly over the top bar, a small towel hanging crooked from the middle bar, the bottom bar empty, one mounting screw sticking out of the wall plate

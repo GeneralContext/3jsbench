@@ -1,0 +1,1 @@
+a cafe A-frame sidewalk sign, black chalkboard in a wooden frame, with a chalk ledge at the bottom of the board, with "Open Late" hand-written in white chalk on the board, with a stick of white chalk resting on the ledge

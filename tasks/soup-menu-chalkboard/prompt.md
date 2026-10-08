@@ -1,0 +1,1 @@
+a black chalkboard on a tripod wooden easel, with a chalk ledge under the board, with "Soup of the Day: Tomato" hand-written in white chalk on the board, with a stick of white chalk resting on the ledge
