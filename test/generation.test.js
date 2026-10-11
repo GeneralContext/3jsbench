@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, readFile, readdir } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { loadTask } from '../src/tasks.js';
 import { requestMessages } from '../src/prompt.js';
-import { generateAttempt, generationSettings } from '../src/generation.js';
+import { generateAttempt, generationSettings, savedAttempt } from '../src/generation.js';
 import { callModel, parseCompletion, requestBody } from '../src/model-call.js';
 
 const routed = generationSettings({ model: 'vendor/model', provider: 'vendor' });
@@ -174,4 +174,24 @@ test('the reply is saved verbatim, including an empty or truncated one; no reply
     const text = await readFile(path.join(dir, 'asset.ts'), 'utf8').catch(() => null);
     assert.equal(text, saved);
   }
+});
+
+test('a rerun restores a reply saved before an interruption, and refuses a changed request', async () => {
+  const task = await loadTask('spiral-staircase');
+  const dir = await scratch();
+  assert.equal(await savedAttempt({ task, dir }), null);
+  const send = async () => reply(200, completion('export default () => null;'));
+  await callModel({ settings: routed, messages: requestMessages(task), dir, key: 'k', send });
+  // The run stopped after completion.json and before asset.ts.
+  assert.deepEqual(await savedAttempt({ task, dir }), { replied: true, reason: null });
+  assert.equal(await readFile(path.join(dir, 'asset.ts'), 'utf8'), 'export default () => null;');
+  assert.equal((await stat(path.join(dir, 'asset.ts'))).mode & 0o777, 0o600);
+  // A second rerun leaves the saved reply as it is.
+  await writeFile(path.join(dir, 'asset.ts'), 'edited');
+  await savedAttempt({ task, dir });
+  assert.equal(await readFile(path.join(dir, 'asset.ts'), 'utf8'), 'edited');
+  await assert.rejects(
+    savedAttempt({ task: { ...task, prompt: 'another brief' }, dir }),
+    /different request/,
+  );
 });

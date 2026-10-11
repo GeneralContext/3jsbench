@@ -5,7 +5,7 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { listTasks, loadTask } from '../src/tasks.js';
 import { requestMessages } from '../src/prompt.js';
-import { generateAttempt, generationSettings } from '../src/generation.js';
+import { generateAttempt, generationSettings, savedAttempt } from '../src/generation.js';
 
 const HELP = `3jsbench: generate Three.js programs for the 3JSBench tasks.
 
@@ -43,6 +43,7 @@ function count(value, flag) {
 
 async function selectTasks(list) {
   const names = list === 'all' ? await listTasks() : list.split(',');
+  if (new Set(names).size !== names.length) throw new Error('--tasks names a task twice');
   return Promise.all(names.map(name => loadTask(name)));
 }
 
@@ -88,8 +89,8 @@ async function generate(v) {
   const tally = { replied: 0, unanswered: 0, unfinished: 0 };
   await pool(jobs, concurrency, async ({ task, dir }) => {
     const name = path.relative(v.out, dir);
-    if (await exists(path.join(dir, 'completion.json')))
-      return tally[(await exists(path.join(dir, 'asset.ts'))) ? 'replied' : 'unanswered']++;
+    const saved = await savedAttempt({ task, dir });
+    if (saved) return tally[saved.replied ? 'replied' : 'unanswered']++;
     if (await exists(dir)) {
       // A call was sent but never finished; it may have been billed.
       console.error(`${name}: a previous call did not finish and may have reached the provider`);
@@ -110,6 +111,7 @@ async function generate(v) {
 
 async function main() {
   const [command, ...args] = process.argv.slice(2);
+  if (command === '--help' || command === '-h') return console.log(HELP);
   const { values: v } = parseArgs({ args, options: OPTIONS, strict: true });
   if (!command || v.help) return console.log(HELP);
   if (command === 'tasks') return console.log((await listTasks()).join('\n'));
