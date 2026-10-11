@@ -1,0 +1,7 @@
+node_modules/
+# Generated attempts and prompts are outputs, not source.
+runs/
+prompts/
+.DS_Store
+.env
+.env.*
