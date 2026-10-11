@@ -1,0 +1,2 @@
+# Task prompts are sent byte for byte; never convert their line endings.
+tasks/** text eol=lf

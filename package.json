@@ -1,0 +1,15 @@
+{
+  "name": "3jsbench",
+  "private": true,
+  "type": "module",
+  "description": "A benchmark of 3D assets that language models write as Three.js programs.",
+  "bin": {
+    "3jsbench": "tools/3jsbench.js"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "test": "node --test \"test/**/*.test.js\""
+  }
+}
