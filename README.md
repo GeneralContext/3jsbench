@@ -18,8 +18,7 @@
 Website: [3jsbench.com](https://3jsbench.com)
 
 This repository holds the 100 tasks and the code that generates attempts. We
-will release the full benchmark soon, including the grader that renders each
-attempt, maps its parts and runs the checks.
+will release the verifier/grader source code with the paper coming soon...
 
 - `tasks/<name>/prompt.md`: the brief.
 - [`src/`](src/) and [`tools/3jsbench.js`](tools/3jsbench.js): generation.
@@ -63,3 +62,7 @@ then the task's brief as the user message:
 | Retries | up to 3 sends, only when the provider did not process the request (rate limit, unavailable gateway, connection refused) |
 
 An empty or truncated reply is still saved as the attempt.
+
+## Contact
+
+For questions, please contact [frank@generalcontextlabs.com](mailto:frank@generalcontextlabs.com).
