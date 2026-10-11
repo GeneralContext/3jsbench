@@ -4,7 +4,7 @@
 import { createHash } from 'node:crypto';
 import http from 'node:http';
 import https from 'node:https';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
@@ -138,6 +138,13 @@ export function parseCompletion(body, settings) {
 const writeJson = (file, value) =>
   writeFile(file, JSON.stringify(value, null, 2) + '\n', { flag: 'wx', mode: 0o600 });
 
+// Written whole or not at all, so a rerun never reads a partial completion.
+async function writeCompletion(dir, value) {
+  const file = path.join(dir, 'completion.json');
+  await writeJson(file + '.partial', value);
+  await rename(file + '.partial', file);
+}
+
 /**
  * Sends one request and returns its completion. `dir` must not exist yet: a call
  * the provider may have accepted is never sent again by a rerun. The request is
@@ -197,7 +204,7 @@ export async function callModel({
         completion = { ok: false, reason: 'invalid-provider-json' };
       }
       const result = { ...completion, requestSha256, calls };
-      await writeJson(path.join(dir, 'completion.json'), result);
+      await writeCompletion(dir, result);
       return result;
     }
     const unreached = error !== null && /ECONNREFUSED|ENOTFOUND|EAI_AGAIN/.test(error);
@@ -209,7 +216,7 @@ export async function callModel({
         requestSha256,
         calls,
       };
-      await writeJson(path.join(dir, 'completion.json'), result);
+      await writeCompletion(dir, result);
       return result;
     }
     await delay(Math.min(5000, 1000 * 2 ** (attempt - 1)));
